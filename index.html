@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <!-- 設置字符編碼為 UTF-8，支援中文 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 確保頁面在移動設備上按設備寬度顯示並禁用縮放 -->
+    <title>生成 QR Code</title>
+    <!-- 引入 QRCode.js 庫，用於生成 QR Code -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        body {
+            /* 使用 Flex 布局，使子元素（.container）在頁面中居中 */
+            display: flex;
+            /* 水平居中對齊子元素 */
+            justify-content: center;
+            /* 垂直居中對齊子元素 */
+            align-items: center;
+            /* 設置高度為視窗的 100%，確保內容填滿整個螢幕 */
+            height: 100vh;
+            /* 移除預設外邊距，確保背景覆蓋整個頁面 */
+            margin: 0;
+            /* 使用漸層背景，從深藍 (#1e1e2f) 到淺藍 (#3a3a5a)，增加高級感 */
+            background: linear-gradient(135deg, #1e1e2f 0%, #3a3a5a 100%);
+            /* 使用 Poppins 字體，現代且優雅 */
+            font-family: 'Poppins', sans-serif;
+        }
+        .container {
+            /* 文字內容居中對齊 */
+            text-align: center;
+            /* 設置半透明白色背景，提升層次感 */
+            background: rgba(255, 255, 255, 0.95);
+            /* 內邊距設為 40px，增加內部空間 */
+            padding: 40px;
+            /* 圓角邊框，增加柔和感 */
+            border-radius: 15px;
+            /* 添加柔和陰影，提升立體感 */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            /* 設置最大寬度為 500px，避免過寬 */
+            max-width: 500px;
+            /* 寬度為 100%，適應父元素 */
+            width: 100%;
+            /* 添加過渡動畫，應用於 transform 屬性 */
+            transition: transform 0.3s ease;
+        }
+        .container:hover {
+            /* 滑鼠懸停時向上移動 5px，增加互動感 */
+            transform: translateY(-5px);
+        }
+        h2 {
+            /* 標題文字顏色為深藍色 */
+            color: #2c2c54;
+            /* 字重設為 600，略粗 */
+            font-weight: 600;
+            /* 下外邊距 30px，分隔標題與輸入框 */
+            margin-bottom: 30px;
+            /* 字距 1px，提升文字質感 */
+            letter-spacing: 1px;
+        }
+        input {
+            /* 內邊距，左右 15px，上下 12px */
+            padding: 12px 15px;
+            /* 寬度為 100%，填滿父元素 */
+            width: 100%;
+            /* 最大寬度 350px，限制過寬 */
+            max-width: 350px;
+            /* 下外邊距 25px，分隔輸入框與按鈕 */
+            margin-bottom: 25px;
+            /* 移除預設邊框 */
+            border: none;
+            /* 圓角 8px，柔和設計 */
+            border-radius: 8px;
+            /* 設置柔和灰色背景 */
+            background: #f5f5f5;
+            /* 添加內陰影，模擬凹陷效果 */
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+            /* 字體大小 16px，易讀 */
+            font-size: 16px;
+            /* 文字顏色為深灰 */
+            color: #333;
+            /* 添加過渡動畫，應用於所有屬性 */
+            transition: all 0.3s ease;
+        }
+        input:focus {
+            /* 移除聚焦時的預設外框 */
+            outline: none;
+            /* 聚焦時背景變為純白 */
+            background: #fff;
+            /* 添加藍色光暈，提升高級感 */
+            box-shadow: 0 0 10px rgba(100, 100, 255, 0.3);
+        }
+        button {
+            /* 內邊距，上下 12px，左右 25px */
+            padding: 12px 25px;
+            /* 左右外邊距 10px，分隔按鈕 */
+            margin: 0 10px;
+            /* 設置深紫色背景 */
+            background: #4834d4;
+            /* 文字顏色為白色 */
+            color: #fff;
+            /* 移除預設邊框 */
+            border: none;
+            /* 圓角 8px */
+            border-radius: 8px;
+            /* 滑鼠顯示為手型，提示可點擊 */
+            cursor: pointer;
+            /* 字體大小 16px */
+            font-size: 16px;
+            /* 字重 500，中等粗細 */
+            font-weight: 500;
+            /* 文字轉為全大寫，提升質感 */
+            text-transform: uppercase;
+            /* 字距 1px */
+            letter-spacing: 1px;
+            /* 添加過渡動畫，應用於所有屬性 */
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            /* 懸停時背景變亮 */
+            background: #6c5ce7;
+            /* 添加紫色光暈，提升互動感 */
+            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4);
+        }
+        button:disabled {
+            /* 禁用狀態下背景為灰色 */
+            background: #a4b0be;
+            /* 滑鼠顯示為不可點擊 */
+            cursor: not-allowed;
+        }
+        #qrPreview {
+            /* 上外邊距 30px，分隔按鈕與 QR Code */
+            margin-top: 30px;
+            /* 內邊距 15px，包裹 QR Code */
+            padding: 15px;
+            /* 設置白色背景 */
+            background: #fff;
+            /* 圓角 10px */
+            border-radius: 10px;
+            /* 添加柔和陰影 */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+    <!-- 引入 Poppins 字體，從 Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h2>生成 QR Code</h2>
+        <!-- 輸入框，用於輸入網址 -->
+        <input type="text" id="qrInput" placeholder="輸入網址（例如 www.example.com）">
+        <br>
+        <!-- 生成按鈕，點擊後生成 QR Code -->
+        <button onclick="generateQR()">生成 QR Code</button>
+        <!-- 下載按鈕，初始禁用，生成後啟用 -->
+        <button onclick="downloadQR()" id="downloadBtn" disabled>下載 QR Code</button>
+        <!-- QR Code 預覽區域 -->
+        <div id="qrPreview"></div>
+    </div>
+
+    <script>
+        // 定義全域變數，用於儲存 QR Code 的 Data URL
+        let qrImageData = null;
+
+        // 生成 QR Code 的函數
+        function generateQR() {
+            // 獲取輸入框的值並去除首尾空格
+            let inputText = document.getElementById('qrInput').value.trim();
+            // 檢查是否有輸入內容
+            if (!inputText) {
+                alert('請輸入內容！');
+                return;
+            }
+            // 如果輸入的不是以 http 或 https 開頭，自動補上 https://
+            if (!/^https?:\/\//i.test(inputText)) {
+                inputText = 'https://' + inputText;
+            }
+
+            // 獲取預覽區域並清空之前的內容
+            const qrPreview = document.getElementById('qrPreview');
+            qrPreview.innerHTML = '';
+
+            // 生成 QR Code
+            const qr = new QRCode(qrPreview, {
+                text: inputText,          // QR Code 的內容
+                width: 256,               // 寬度 256px
+                height: 256,              // 高度 256px
+                colorDark: "#2c2c54",     // 深藍色點陣
+                colorLight: "#ffffff",    // 白色背景
+                correctLevel: QRCode.CorrectLevel.H  // 最高錯誤校正等級
+            });
+
+            // 使用 setTimeout 確保 canvas 渲染完成後獲取 Data URL
+            setTimeout(() => {
+                const qrCanvas = qrPreview.querySelector('canvas');
+                qrImageData = qrCanvas.toDataURL('image/png');
+                console.clear();
+                console.log('QR Code 已生成，掃描後將導向：', inputText);
+                console.log('Data URL:', qrImageData);
+                console.log('%c ', `padding: 128px; background: url(${qrImageData}) no-repeat; background-size: contain;`);
+                // 啟用下載按鈕
+                document.getElementById('downloadBtn').disabled = false;
+            }, 100);
+        }
+
+        // 下載 QR Code 的函數
+        function downloadQR() {
+            if (!qrImageData) {
+                alert('請先生成 QR Code！');
+                return;
+            }
+            const inputText = document.getElementById('qrInput').value.trim();
+            const fileName = inputText.replace(/^https?:\/\//, '').replace(/[^a-zA-Z0-9]/g, '_') || 'qrcode';
+            const link = document.createElement('a');
+            link.href = qrImageData;
+            link.download = `${fileName}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
